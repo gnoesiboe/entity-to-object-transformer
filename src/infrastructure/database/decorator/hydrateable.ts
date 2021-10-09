@@ -23,12 +23,14 @@ export default function hydrateable<EntityType extends { new (...args: any[]): {
     return class HydratedEntity extends constructor {
         public readonly __isHydrated: boolean = true;
 
-        public static fromNativeObject = (nativeObject: NativeObject<EntityType>, mapping: Mapping) => {
+        public static fromNativeObject = (input: NativeObject<EntityType>, mapping: Mapping) => {
+            const allInputKeys = Object.keys(input);
+
             const constructorParameterNames =
                 extractConstructorParameterNames<ConstructorValues<EntityType>>(constructor);
 
             const constructorValues = constructorParameterNames.map((cursorArgumentName) => {
-                let value = nativeObject[cursorArgumentName];
+                let value = input[cursorArgumentName];
 
                 if (typeof value === 'undefined') {
                     throw new Error(`Could not resolve constructor value for key: '${cursorArgumentName}'`);
@@ -50,7 +52,21 @@ export default function hydrateable<EntityType extends { new (...args: any[]): {
 
             const instance = new HydratedEntity(...constructorValues);
 
-            // @todo apply setters that ar enot in the constructor
+            const inputKeysNotInConstructor = allInputKeys.filter((inputKey) => {
+                return !constructorParameterNames.some((constructorKey) => constructorKey === inputKey);
+            });
+
+            inputKeysNotInConstructor.forEach((key) => {
+                const value = input[key];
+
+                const alternateKey = `_${key}`;
+
+                const success = Reflect.set(instance, key, value) || Reflect.set(instance, alternateKey, value);
+
+                if (!success) {
+                    throw new Error(`Could not set value for key '${key}'`);
+                }
+            });
 
             return instance;
         };
@@ -62,7 +78,7 @@ export default function hydrateable<EntityType extends { new (...args: any[]): {
             const out: Record<string, any> = {};
 
             keys.forEach((key, index) => {
-                let value = values[index];
+                let value: any = values[index];
 
                 if (key === '__isHydrated') {
                     return;

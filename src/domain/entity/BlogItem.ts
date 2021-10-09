@@ -3,18 +3,16 @@ import hydrateable from '../../infrastructure/database/decorator/hydrateable';
 
 @hydrateable
 export default class BlogItem {
+    private readonly _createdAt: Date;
+
     constructor(
         public readonly uuid: string,
         private _title: string,
         private _description: string,
         public readonly author: Author,
-    ) {}
-
-    // createFromDocument(document: BlogItemDocument): BlogItem {
-    //     const author = Author.createFromDocument(document.author);
-    //
-    //     return new BlogItem(document._id, document.title, document.description, author);
-    // }
+    ) {
+        this._createdAt = new Date();
+    }
 
     get title() {
         return this._title;
@@ -26,5 +24,9 @@ export default class BlogItem {
 
     get description() {
         return this._description;
+    }
+
+    get createdAt() {
+        return this._createdAt;
     }
 }

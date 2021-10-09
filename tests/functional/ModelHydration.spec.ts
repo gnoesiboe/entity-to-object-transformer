@@ -72,6 +72,7 @@ describe('ModelHydration', () => {
                     uuid: blogUuid,
                     title: blogTitle,
                     description: blogDescription,
+                    createdAt: blogItem.createdAt,
                     author: {
                         uuid: authorUuid,
                         name: authorName,
@@ -106,7 +107,6 @@ describe('ModelHydration', () => {
 
     // @todo clean up for read- and mainability
     // @todo typescript types for constructor
-    // @todo set properties directly on object for properties that are not in the constructor when hydrating
     // @todo handling of value objects (custom handlers?)
     // @todo inheritance (is that even a problem?)
     // @todo supply the hydration mapping through the decorator instead of in `fromNativeObject` function
