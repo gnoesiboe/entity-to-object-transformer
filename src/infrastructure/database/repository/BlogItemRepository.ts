@@ -1,6 +1,6 @@
 import BlogItemDocument from '../model/BlogItemDocument';
 import BlogItem from '../../../domain/entity/BlogItem';
-import BlogItemToDocumentTransformer from '../transformer/BlogItemToDocumentTransformer';
+import UuidToStringTransformer from '../transformer/UuidToStringTransformer';
 
 export default class BlogItemRepository {
     private blogItemDocuments: BlogItemDocument[] = [
@@ -24,7 +24,7 @@ export default class BlogItemRepository {
         },
     ];
 
-    public constructor(private readonly transformer: BlogItemToDocumentTransformer) {}
+    public constructor(private readonly transformer: UuidToStringTransformer) {}
 
     async findOneWithId(uuid: string): Promise<BlogItem | null> {
         const document = this.blogItemDocuments.find((cursorItem) => cursorItem._id === uuid);

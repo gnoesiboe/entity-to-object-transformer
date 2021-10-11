@@ -1,4 +1,5 @@
 import { extractConstructorParameterNames } from '../utility/classReflectionUtilities';
+import 'reflect-metadata';
 
 export interface HydratedEntityInterface<EntityType> {
     asNativeObject: () => NativeObject<EntityType>;
@@ -19,7 +20,13 @@ export interface HydrateableEntityConstructor<EntityType> {
     new (...args: any[]): HydratedEntityInterface<EntityType>;
 }
 
-export default function hydrateable<EntityType extends { new (...args: any[]): {} }>(constructor: EntityType) {
+export default function hydrateable<EntityType extends { new (...args: any[]): {} }>(
+    constructor: EntityType,
+    ...otherArgs
+) {
+    console.log(Reflect.getMetadata('design:paramtypes', constructor.prototype));
+    console.log(Reflect.getMetadata('design:paramtypes', constructor));
+
     return class HydratedEntity extends constructor {
         public readonly __isHydrated: boolean = true;
 
@@ -86,6 +93,12 @@ export default function hydrateable<EntityType extends { new (...args: any[]): {
 
                 if (typeof value === 'function') {
                     return;
+                }
+
+                const type = Reflect.getMetadata('type', this, key);
+
+                if (type) {
+                    console.log(key, type);
                 }
 
                 if (typeof value === 'object' && value.__isHydrated) {

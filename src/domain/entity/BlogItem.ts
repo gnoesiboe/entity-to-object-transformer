@@ -1,17 +1,36 @@
 import Author from './Author';
-import hydrateable from '../../infrastructure/database/decorator/hydrateable';
+import Uuid from '../valueObject/Uuid';
+import { MappingStrategy, serializable } from '../../infrastructure/database/decorator/mappedProp';
 
-@hydrateable
+@serializable<BlogItem>({
+    strategy: MappingStrategy.ObjectProperties,
+    properties: {
+        uuid: {
+            alternateName: '_id',
+            inherit: Uuid,
+        },
+        _title: {
+            alternateName: 'title',
+        },
+        _description: {
+            alternateName: 'description',
+        },
+        author: {
+            inherit: Author,
+        },
+        createdAt: {},
+    },
+})
 export default class BlogItem {
-    private readonly _createdAt: Date;
+    public readonly createdAt: Date;
 
     constructor(
-        public readonly uuid: string,
+        public readonly uuid: Uuid,
         private _title: string,
         private _description: string,
         public readonly author: Author,
     ) {
-        this._createdAt = new Date();
+        this.createdAt = new Date();
     }
 
     get title() {
@@ -24,9 +43,5 @@ export default class BlogItem {
 
     get description() {
         return this._description;
-    }
-
-    get createdAt() {
-        return this._createdAt;
     }
 }

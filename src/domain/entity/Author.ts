@@ -1,12 +1,25 @@
-import AuthorDocument from '../../infrastructure/database/model/AuthorDocument';
-import hydrateable from '../../infrastructure/database/decorator/hydrateable';
+import { serializable, MappingStrategy } from '../../infrastructure/database/decorator/mappedProp';
+import 'reflect-metadata';
+import Uuid from '../valueObject/Uuid';
 
-@hydrateable
+@serializable<Author>({
+    strategy: MappingStrategy.ObjectProperties,
+    properties: {
+        uuid: {
+            alternateName: '_id',
+            inherit: Uuid,
+        },
+        _name: {
+            alternateName: 'name',
+        },
+        createdAt: {},
+    },
+})
 export default class Author {
-    constructor(public readonly uuid: string, private _name: string) {}
+    public readonly createdAt: Date;
 
-    public static createFromDocument(document: AuthorDocument): Author {
-        return new Author(document._id, document.name);
+    constructor(public readonly uuid: Uuid, private readonly _name: string) {
+        this.createdAt = new Date();
     }
 
     get name() {
