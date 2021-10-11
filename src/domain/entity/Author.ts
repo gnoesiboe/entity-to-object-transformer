@@ -2,19 +2,19 @@ import { serializable, MappingStrategy } from '../../infrastructure/database/dec
 import 'reflect-metadata';
 import Uuid from '../valueObject/Uuid';
 
-@serializable<Author>({
-    strategy: MappingStrategy.ObjectProperties,
-    properties: {
-        uuid: {
-            alternateName: '_id',
-            inherit: Uuid,
-        },
-        _name: {
-            alternateName: 'name',
-        },
-        createdAt: {},
-    },
-})
+// @serializable<Author>({
+//     strategy: MappingStrategy.ObjectProperties,
+//     properties: {
+//         uuid: {
+//             alternateName: '_id',
+//             inherit: Uuid,
+//         },
+//         _name: {
+//             alternateName: 'name',
+//         },
+//         createdAt: {},
+//     },
+// })
 export default class Author {
     public readonly createdAt: Date;
 

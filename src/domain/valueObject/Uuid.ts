@@ -1,7 +1,7 @@
 import { v4, validate, version } from 'uuid';
 import { MappingStrategy, serializable } from '../../infrastructure/database/decorator/mappedProp';
 
-@serializable<Uuid>({ strategy: MappingStrategy.Stringify })
+// @serializable<Uuid>({ strategy: MappingStrategy.Stringify })
 export default class Uuid {
     public readonly value: string;
 

@@ -1,5 +1,5 @@
 import Uuid from '../../../domain/valueObject/Uuid';
-import { PropValueTransformer } from '../decorator/mappedProp';
+import { PropValueTransformer } from './EntityToObjectTransformer';
 
 export default class UuidToStringTransformer implements PropValueTransformer<Uuid, string> {
     transform(uuid: Uuid): string {
