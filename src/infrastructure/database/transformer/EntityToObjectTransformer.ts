@@ -24,7 +24,6 @@ export type ObjectMapping = {
 };
 
 const isObjectMapping = (mapping: ObjectMapping | PropertyMapping): mapping is ObjectMapping => {
-    // @ts-ignore In order to find out if this is ObjectMapping we need to check if type is there
     return mapping.type === 'object';
 };
 
@@ -32,12 +31,16 @@ export default class EntityToObjectTransformer<
     EntityType extends Record<string, any>,
     ObjectType = Record<string, any>,
 > {
-    transform(entity: EntityType, mapping: ObjectMapping): ObjectType {
+    private static forEachMappingProperty(
+        mapping: ObjectMapping,
+        callback: (
+            propertyMappingKey: Extract<keyof ObjectMapping['properties'], string>,
+            propertyMapping: PropertyMapping | ObjectMapping,
+        ) => void,
+    ): void {
         const propertyMappingKeys = Object.keys(mapping.properties) as Array<
             Extract<keyof ObjectMapping['properties'], string>
         >;
-
-        const out: Record<string, any> = {};
 
         propertyMappingKeys.forEach((propertyMappingKey) => {
             const propertyMapping = mapping.properties[propertyMappingKey];
@@ -48,7 +51,15 @@ export default class EntityToObjectTransformer<
                 );
             }
 
-            const key = propertyMapping?.as || propertyMappingKey;
+            callback(propertyMappingKey, propertyMapping);
+        });
+    }
+
+    transform(entity: EntityType, mapping: ObjectMapping): ObjectType {
+        const out: Record<string, any> = {};
+
+        EntityToObjectTransformer.forEachMappingProperty(mapping, (propertyMappingKey, propertyMapping) => {
+            const key = propertyMapping.as || propertyMappingKey;
 
             let value = entity[propertyMappingKey];
 
@@ -61,9 +72,9 @@ export default class EntityToObjectTransformer<
                     ? value.map((item) => this.transform(item, propertyMapping))
                     : this.transform(value, propertyMapping);
             } else if (propertyMapping.transformer) {
-                value = Array.isArray(value)
-                    ? value.map((item) => propertyMapping.transformer.transform(item))
-                    : propertyMapping.transformer.transform(value);
+                const { transform } = propertyMapping.transformer;
+
+                value = Array.isArray(value) ? value.map((item) => transform(item)) : transform(value);
             }
 
             out[key] = value;
@@ -75,20 +86,8 @@ export default class EntityToObjectTransformer<
     reverseTransform(inputObject: Record<string, any>, mapping: ObjectMapping): EntityType {
         const instance = new mapping.constructor() as EntityType;
 
-        const propertyMappingKeys = Object.keys(mapping.properties) as Array<
-            Extract<keyof ObjectMapping['properties'], string>
-        >;
-
-        propertyMappingKeys.forEach((propertyMappingKey) => {
-            const propertyMapping = mapping.properties[propertyMappingKey];
-
-            if (!propertyMapping) {
-                throw new Error(
-                    `Expecting property mapping for key '${propertyMappingKey}' to be available at this point`,
-                );
-            }
-
-            const inputKey = propertyMapping?.as || propertyMappingKey;
+        EntityToObjectTransformer.forEachMappingProperty(mapping, (propertyMappingKey, propertyMapping) => {
+            const inputKey = propertyMapping.as || propertyMappingKey;
 
             let value = inputObject[inputKey];
 
@@ -101,9 +100,9 @@ export default class EntityToObjectTransformer<
                     ? value.map((item) => this.reverseTransform(item, propertyMapping))
                     : this.reverseTransform(value, propertyMapping);
             } else if (propertyMapping.transformer) {
-                value = Array.isArray(value)
-                    ? value.map((item) => propertyMapping.transformer.reverseTransform(item))
-                    : propertyMapping.transformer.reverseTransform(value);
+                const { reverseTransform } = propertyMapping.transformer;
+
+                value = Array.isArray(value) ? value.map((item) => reverseTransform(item)) : reverseTransform(value);
             }
 
             const success = Reflect.set(instance, propertyMappingKey, value);
