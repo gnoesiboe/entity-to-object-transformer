@@ -74,6 +74,7 @@ const blogItemMapping: ObjectMapping = {
         },
         author: authorMapping,
     },
+    ignoredProperties: ['comments'],
 };
 
 const blogItemWithCommentsMapping: ObjectMapping = {
@@ -92,6 +93,10 @@ const blogItemWithCommentsMapping: ObjectMapping = {
                 },
                 message: {
                     type: 'property',
+                },
+                createdAt: {
+                    type: 'property',
+                    transformer: new DateToStringTransformer(),
                 },
             },
         },
@@ -209,10 +214,12 @@ describe('EntityToObjectTransformer', () => {
                     {
                         _id: blogItemWithComments.comments[0].uuid.toString(),
                         message: blogItemWithComments.comments[0].message,
+                        createdAt: blogItemWithComments.comments[0].createdAt.toISOString(),
                     },
                     {
                         _id: blogItemWithComments.comments[1].uuid.toString(),
                         message: blogItemWithComments.comments[1].message,
+                        createdAt: blogItemWithComments.comments[1].createdAt.toISOString(),
                     },
                 ],
             });
@@ -248,4 +255,95 @@ describe('EntityToObjectTransformer', () => {
             });
         });
     });
+
+    describe('When not all properties are mapped', () => {
+        describe('With a single entity with no nesting', () => {
+            describe('and it told to throw when not', () => {
+                it('should throw', () => {
+                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
+
+                    const execute = () =>
+                        transformer.transform(author, {
+                            type: 'object',
+                            constructor: Author,
+                            properties: {
+                                uuid: {
+                                    type: 'property',
+                                },
+                            },
+                        });
+
+                    expect(execute).toThrow();
+                });
+            });
+
+            describe('and it is told to not throw', () => {
+                it('should not throw', () => {
+                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
+
+                    const execute = () =>
+                        transformer.transform(author, {
+                            type: 'object',
+                            constructor: Author,
+                            properties: {
+                                uuid: {
+                                    type: 'property',
+                                },
+                                _name: {
+                                    type: 'property',
+                                },
+                                createdAt: {
+                                    type: 'property',
+                                },
+                            },
+                        });
+
+                    expect(execute).not.toThrow();
+                });
+            });
+        });
+
+        describe('With an valid entity with invalid nested entities in it ', () => {
+            it('should throw', () => {
+                const transformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>();
+                const blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
+
+                const execute = () =>
+                    transformer.transform(blogItem, {
+                        type: 'object',
+                        constructor: BlogItem,
+                        properties: {
+                            uuid: {
+                                type: 'property',
+                            },
+                            _title: {
+                                type: 'property',
+                            },
+                            _description: {
+                                type: 'property',
+                            },
+                            author: {
+                                type: 'object',
+                                constructor: Author,
+                                properties: {
+                                    uuid: {
+                                        type: 'property',
+                                    },
+                                    // missing _name, createdAt
+                                },
+                            },
+                        },
+                    });
+
+                expect(execute).toThrow();
+            });
+        });
+    });
+
+    // @todo apply mapping to class instead of to transform and reverseTransform both
+    // @todo add configuration for weather or not to throw when not all entity properties are mapped
+    // @todo be able to use custom collections
+    // @todo does this work with inheritance?
+    // @todo different types of errors?
+    // @todo convert to NPM package
 });

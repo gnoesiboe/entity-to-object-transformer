@@ -1,3 +1,5 @@
+import { checkArrayDiff } from '../utility/arrayComparisonUtilities';
+
 export type PropValueTransformer<FromType = any, ToType = any> = {
     transform(from: FromType): ToType;
     reverseTransform(to: ToType): FromType;
@@ -21,6 +23,7 @@ export type ObjectMapping = {
     properties: Partial<{
         [key: string]: PropertyMapping | ObjectMapping;
     }>;
+    ignoredProperties?: string[];
 };
 
 const isObjectMapping = (mapping: ObjectMapping | PropertyMapping): mapping is ObjectMapping => {
@@ -58,6 +61,9 @@ export default class EntityToObjectTransformer<
     transform(entity: EntityType, mapping: ObjectMapping): ObjectType {
         const out: Record<string, any> = {};
 
+        const allEntityProps: string[] = Object.keys(entity);
+        const transformedEntityProps: string[] = [];
+
         EntityToObjectTransformer.forEachMappingProperty(mapping, (propertyMappingKey, propertyMapping) => {
             const key = propertyMapping.as || propertyMappingKey;
 
@@ -78,7 +84,22 @@ export default class EntityToObjectTransformer<
             }
 
             out[key] = value;
+
+            transformedEntityProps.push(propertyMappingKey);
         });
+
+        const forgottenProps = checkArrayDiff(allEntityProps, transformedEntityProps);
+        const ignoredProps = mapping.ignoredProperties || [];
+
+        const propsToThrowFor = checkArrayDiff(forgottenProps, ignoredProps);
+
+        if (propsToThrowFor.length > 0) {
+            throw new Error(
+                `The following entity keys were not mapped on entity ${
+                    mapping.constructor.name
+                }: '${propsToThrowFor.join(', ')}'`,
+            );
+        }
 
         return out as ObjectType;
     }
