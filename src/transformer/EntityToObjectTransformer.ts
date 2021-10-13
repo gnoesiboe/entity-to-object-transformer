@@ -1,4 +1,5 @@
 import { checkArrayDiff } from '../utility/arrayComparisonUtilities';
+import { isObjectMapping } from '../utility/mappingIdentifiers';
 
 export type PropValueTransformer<FromType = any, ToType = any> = {
     transform(from: FromType): ToType;
@@ -10,7 +11,7 @@ type ClassConstructor<EntityType = {}> = {
     [key: string]: any;
 };
 
-type PropertyMapping = {
+export type PropertyMapping = {
     type: 'property';
     as?: string;
     transformer?: PropValueTransformer;
@@ -24,10 +25,6 @@ export type ObjectMapping = {
         [key: string]: PropertyMapping | ObjectMapping;
     }>;
     ignoredProperties?: string[];
-};
-
-const isObjectMapping = (mapping: ObjectMapping | PropertyMapping): mapping is ObjectMapping => {
-    return mapping.type === 'object';
 };
 
 export default class EntityToObjectTransformer<
