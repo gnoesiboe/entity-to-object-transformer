@@ -338,7 +338,6 @@ describe('EntityToObjectTransformer', () => {
         });
     });
 
-    // @todo apply mapping to class instead of to transform and reverseTransform both
     // @todo add configuration for weather or not to throw when not all entity properties are mapped
     // @todo be able to use custom collections
     // @todo does this work with inheritance?
