@@ -1,12 +1,10 @@
-import Uuid from '../../src/domain/valueObject/Uuid';
-import Author from '../../src/domain/entity/Author';
-import EntityToObjectTransformer, {
-    ObjectMapping,
-} from '../../src/infrastructure/database/transformer/EntityToObjectTransformer';
-import UuidToStringTransformer from '../../src/infrastructure/database/transformer/UuidToStringTransformer';
-import BlogItem from '../../src/domain/entity/BlogItem';
-import DateToStringTransformer from '../../src/infrastructure/database/transformer/DateToStringTransformer';
-import Comment from '../../src/domain/entity/Comment';
+import Uuid from './support/valueObject/Uuid';
+import Author from './support/entity/Author';
+import EntityToObjectTransformer, { ObjectMapping } from '../src/transformer/EntityToObjectTransformer';
+import UuidToStringTransformer from './support/transformer/UuidToStringTransformer';
+import BlogItem from './support/entity/BlogItem';
+import DateToStringTransformer from './support/transformer/DateToStringTransformer';
+import Comment from './support/entity/Comment';
 
 type AuthorAsObjectType = {
     _id: string;

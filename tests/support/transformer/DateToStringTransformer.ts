@@ -1,4 +1,4 @@
-import { PropValueTransformer } from './EntityToObjectTransformer';
+import { PropValueTransformer } from '../../../src/transformer/EntityToObjectTransformer';
 
 export default class DateToStringTransformer implements PropValueTransformer<Date, string> {
     transform(from: Date): string {

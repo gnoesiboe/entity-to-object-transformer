@@ -1,5 +1,5 @@
-import Uuid from '../../../domain/valueObject/Uuid';
-import { PropValueTransformer } from './EntityToObjectTransformer';
+import Uuid from '../valueObject/Uuid';
+import { PropValueTransformer } from '../../../src/transformer/EntityToObjectTransformer';
 
 export default class UuidToStringTransformer implements PropValueTransformer<Uuid, string> {
     transform(uuid: Uuid): string {
