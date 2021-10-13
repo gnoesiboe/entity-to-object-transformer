@@ -5,6 +5,9 @@ import UuidToStringTransformer from './support/transformer/UuidToStringTransform
 import BlogItem from './support/entity/BlogItem';
 import DateToStringTransformer from './support/transformer/DateToStringTransformer';
 import Comment from './support/entity/Comment';
+import PropertiesNotMappedError from '../src/error/PropertiesNotMappedError';
+import PropertyNotFoundOnEntityError from '../src/error/PropertyNotFoundOnEntityError';
+import PropertyNotFoundInObjectError from '../src/error/PropertyNotFoundInObjectError';
 
 type AuthorAsObjectType = {
     _id: string;
@@ -271,7 +274,7 @@ describe('EntityToObjectTransformer', () => {
                             },
                         });
 
-                    expect(execute).toThrow();
+                    expect(execute).toThrow(PropertiesNotMappedError);
                 });
             });
 
@@ -333,13 +336,71 @@ describe('EntityToObjectTransformer', () => {
                         },
                     });
 
-                expect(execute).toThrow();
+                expect(execute).toThrow(PropertiesNotMappedError);
+            });
+        });
+    });
+
+    describe('When mapping an non existent property', () => {
+        describe('when transforming', () => {
+            it('should throw', () => {
+                const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
+
+                const execute = () =>
+                    transformer.transform(author, {
+                        type: 'object',
+                        constructor: Author,
+                        properties: {
+                            nonThere: {
+                                type: 'property',
+                            },
+                        },
+                    });
+
+                expect(execute).toThrow(PropertyNotFoundOnEntityError);
+            });
+        });
+
+        describe('When reverse transforming', () => {
+            it('should throw', () => {
+                const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
+
+                const correctMapping: ObjectMapping = {
+                    type: 'object',
+                    constructor: Author,
+                    properties: {
+                        uuid: {
+                            type: 'property',
+                            transformer: new UuidToStringTransformer(),
+                        },
+                        _name: {
+                            type: 'property',
+                        },
+                        createdAt: {
+                            type: 'property',
+                        },
+                    },
+                };
+
+                const authorAsObject = transformer.transform(author, correctMapping);
+
+                const executeReverseTransform = () =>
+                    transformer.reverseTransform(authorAsObject, {
+                        ...correctMapping,
+                        properties: {
+                            ...correctMapping.properties,
+                            notThere: {
+                                type: 'property',
+                            },
+                        },
+                    });
+
+                expect(executeReverseTransform).toThrow(PropertyNotFoundInObjectError);
             });
         });
     });
 
     // @todo be able to use custom collections
     // @todo does this work with inheritance?
-    // @todo different types of errors?
     // @todo convert to NPM package
 });

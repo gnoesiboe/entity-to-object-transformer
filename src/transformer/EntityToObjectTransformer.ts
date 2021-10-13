@@ -1,12 +1,16 @@
 import { checkArrayDiff } from '../utility/arrayComparisonUtilities';
 import { isObjectMapping } from '../utility/mappingIdentifiers';
+import PropertyNotFoundOnEntityError from '../error/PropertyNotFoundOnEntityError';
+import PropertyNotFoundInObjectError from '../error/PropertyNotFoundInObjectError';
+import PropertiesNotMappedError from '../error/PropertiesNotMappedError';
+import CouldNotAssignPropertyValueError from '../error/CouldNotAssignPropertyValueError';
 
 export type PropValueTransformer<FromType = any, ToType = any> = {
     transform(from: FromType): ToType;
     reverseTransform(to: ToType): FromType;
 };
 
-type ClassConstructor<EntityType = {}> = {
+export type ClassConstructor<EntityType = {}> = {
     new (...args: any[]): EntityType;
     [key: string]: any;
 };
@@ -67,7 +71,7 @@ export default class EntityToObjectTransformer<
             let value = entity[propertyMappingKey];
 
             if (value === undefined) {
-                throw new Error(`Could not find property '${key}' on entity: ${entity.toString()}`);
+                throw PropertyNotFoundOnEntityError.createForProperty(key, mapping.constructor);
             }
 
             if (isObjectMapping(propertyMapping)) {
@@ -87,15 +91,10 @@ export default class EntityToObjectTransformer<
 
         const forgottenProps = checkArrayDiff(allEntityProps, transformedEntityProps);
         const ignoredProps = mapping.ignoredProperties || [];
-
         const propsToThrowFor = checkArrayDiff(forgottenProps, ignoredProps);
 
         if (propsToThrowFor.length > 0) {
-            throw new Error(
-                `The following entity keys were not mapped on entity ${
-                    mapping.constructor.name
-                }: '${propsToThrowFor.join(', ')}'`,
-            );
+            throw PropertiesNotMappedError.createForProperties(propsToThrowFor, mapping.constructor);
         }
 
         return out as ObjectType;
@@ -110,7 +109,7 @@ export default class EntityToObjectTransformer<
             let value = inputObject[inputKey];
 
             if (value === undefined) {
-                throw new Error(`Could not find property '${inputKey}' on object: ${JSON.stringify(inputObject)}`);
+                throw PropertyNotFoundInObjectError.createForProperty(inputKey, inputObject);
             }
 
             if (isObjectMapping(propertyMapping)) {
@@ -126,7 +125,7 @@ export default class EntityToObjectTransformer<
             const success = Reflect.set(instance, propertyMappingKey, value);
 
             if (!success) {
-                throw new Error(`Could net set '${propertyMappingKey}' on instance: ${instance.name}`);
+                throw CouldNotAssignPropertyValueError.createForProperty(propertyMappingKey, mapping.constructor);
             }
         });
 
