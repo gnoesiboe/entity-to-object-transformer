@@ -464,6 +464,7 @@ describe('EntityToObjectTransformer', () => {
         });
     });
 
-    // @todo be able to use custom collections
-    // @todo convert to NPM package
+    // @todo test arrays of properties
+    // @todo tests for utility functions
+    // @todo output type should be on trnasform functions as that is where you supply the mapping that generates it
 });
