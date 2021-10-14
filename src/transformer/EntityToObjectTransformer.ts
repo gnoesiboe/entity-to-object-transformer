@@ -25,9 +25,9 @@ export type ObjectMapping = {
     type: 'object';
     constructor: ClassConstructor;
     as?: string;
-    properties: Partial<{
+    properties: {
         [key: string]: PropertyMapping | ObjectMapping;
-    }>;
+    };
     ignoredProperties?: string[];
 };
 
