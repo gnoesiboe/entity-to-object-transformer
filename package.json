@@ -1,15 +1,37 @@
 {
-  "name": "hydration-playground",
+  "name": "@gnoesiboe/entity-to-object-transformer",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Transforms entities to native objects and back. Enables you to use domain entities in your application, but store them as plain objects, and re-hydrate them when they come back from the database.",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "build:watch": "tsc --watch",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "transformer",
+    "entity",
+    "object"
+  ],
+  "author": {
+    "name": "Gijs Nieuwenhuis",
+    "email": "gijsnieuwenhuis@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Gijs Nieuwenhuis",
+      "email": "gijsnieuwenhuis@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnoesiboe/entity-to-object-transformer"
+  },
+  "engines": {
+    "node": ">=14.17.6"
+  },
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/plugin-proposal-class-properties": "^7.14.5",
