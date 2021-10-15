@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import Uuid from '../valueObject/Uuid';
 
 export default class Author {
