@@ -11,6 +11,7 @@ export default class BlogItem {
         private _title: string,
         private _description: string,
         public readonly author: Author,
+        private _tags: string[] = [],
     ) {
         this.createdAt = new Date();
     }
@@ -25,6 +26,10 @@ export default class BlogItem {
 
     get description() {
         return this._description;
+    }
+
+    get tags() {
+        return [...this._tags];
     }
 
     addComment(comment: Comment) {

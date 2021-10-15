@@ -26,6 +26,7 @@ type BlogItemAsObjectType = {
     description: string;
     createdAt: string;
     author: AuthorAsObjectType;
+    tags: [];
 };
 
 type CommentAsObjectType = {
@@ -79,6 +80,10 @@ const blogItemMapping: ObjectMapping = {
             transformer: new DateToStringTransformer(),
         },
         author: authorMapping,
+        _tags: {
+            as: 'tags',
+            type: 'property',
+        },
     },
     ignoredProperties: ['comments'],
 };
@@ -151,7 +156,11 @@ describe('EntityToObjectTransformer', () => {
         let blogItemAsObject: BlogItemAsObjectType;
 
         beforeEach(() => {
-            blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
+            blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author, [
+                'entity',
+                'mapping',
+                'transformer',
+            ]);
             blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>();
             blogItemAsObject = blogItemTransformer.transform(blogItem, blogItemMapping);
         });
@@ -167,6 +176,7 @@ describe('EntityToObjectTransformer', () => {
                     name: author.name,
                     createdAt: author.createdAt.toISOString(),
                 },
+                tags: ['entity', 'mapping', 'transformer'],
             });
         });
 
@@ -193,7 +203,11 @@ describe('EntityToObjectTransformer', () => {
         const blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectWithCommentsType>();
 
         beforeEach(() => {
-            blogItemWithComments = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
+            blogItemWithComments = new BlogItem(new Uuid(), 'Some title', 'Some description', author, [
+                'eerste',
+                'tweede',
+                'derde',
+            ]);
             blogItemWithComments.addComment(new Comment(new Uuid(), 'Doing great!'));
             blogItemWithComments.addComment(new Comment(new Uuid(), 'Well done!'));
 
@@ -228,6 +242,7 @@ describe('EntityToObjectTransformer', () => {
                         createdAt: blogItemWithComments.comments[1].createdAt.toISOString(),
                     },
                 ],
+                tags: ['eerste', 'tweede', 'derde']
             });
         });
 
