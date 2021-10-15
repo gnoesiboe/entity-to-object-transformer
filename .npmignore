@@ -5,3 +5,4 @@ src
 jest.config.ts
 tsconfig.json
 babel.config.js
+.idea
