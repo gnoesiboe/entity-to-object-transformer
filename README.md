@@ -98,7 +98,7 @@ OUTPUT:
 
 const blogItemAsModelAgain = transformer.reverseTransform(blogItemAsObject, mapping);
 
-// OUTPUT: Your model, re-hydrated again
+// OUTPUT: Your entity, re-hydrated again
 ```
 
 ## Documentation
