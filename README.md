@@ -221,8 +221,12 @@ export default class ProductAttributeToObjectTransformer
 
 Feel free however to re-use the `EntityToObjectTransformer` (or any other custom transformer you wrote) inside this transformer, to transform any child objects of some sorts.
 
+### Instantiating classes with runtime validation
+
+As the `EntityToObjectTranformer` will, when reverse transforming, instantiate objects without supplying constructor variables, and there might be some runtime validation there, this might result in errors. To prevent this, for now, you need to write a custom transformer for this and supply this in your mapping. 
+
 ## Known limitations and todos
 
-* As constructors are instantiated without arguments, and the props are set on the instance, there might be problems with runtime validation in the constructor. 
+* As constructors are instantiated without arguments, and the props are set on the instance, there might be problems with runtime validation in the constructor. It would be nice if we could support this without the user having to write a custom transformer for it.
 * Support arrays that contain different types of instances, without using a custom transformer
 * Be able to use custom child collection classes and loop through them
