@@ -199,8 +199,30 @@ Represents a property transformed into something else (up to ypu), or an array o
 | `as` | <code>string &#124; undefined</code> | If you don't want the original property name to be outputted in the object, define an alternate name |
 | `transformer` | `PropValueTransformer` | A class instance implementing `PropValueTransformer` interface that can be called during the transformations to change the property value into anything you want
 
+## Recipes
+
+### Child collections with mixed instance types
+
+When transforming a child collection of mixed instance types, for instance a child collection with instances of Features and Colors, don't define it as an `object`-mapping, but as a `property`-mapping and write a custom transformer. Like:
+
+```ts
+export default class ProductAttributeToObjectTransformer
+    implements PropValueTransformer<Color | Feature, ColorAsObject | FeatureAsObject>
+{
+    reverseTransform(to: ColorAsObject | FeatureAsObject): Color | Feature {
+        // ...
+    }
+
+    transform(from: Color | Feature): ColorAsObject | FeatureAsObject {
+        // ...
+    }
+}
+```
+
+Feel free however to re-use the `EntityToObjectTransformer` (or any other custom transformer you wrote) inside this transformer, to transform any child objects of some sorts.
+
 ## Known limitations and todos
 
 * As constructors are instantiated without arguments, and the props are set on the instance, there might be problems with runtime validation in the constructor. 
-* Support arrays that contain different types of instances
+* Support arrays that contain different types of instances, without using a custom transformer
 * Be able to use custom child collection classes and loop through them

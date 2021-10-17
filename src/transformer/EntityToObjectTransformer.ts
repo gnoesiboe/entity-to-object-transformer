@@ -6,8 +6,8 @@ import PropertiesNotMappedError from '../error/PropertiesNotMappedError';
 import CouldNotAssignPropertyValueError from '../error/CouldNotAssignPropertyValueError';
 
 export type PropValueTransformer<FromType = any, ToType = any> = {
-    transform(from: FromType): ToType;
-    reverseTransform(to: ToType): FromType;
+    transform(input: FromType): ToType;
+    reverseTransform(input: ToType): FromType;
 };
 
 export type ClassConstructor = {
