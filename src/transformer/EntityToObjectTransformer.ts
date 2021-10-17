@@ -79,9 +79,11 @@ export default class EntityToObjectTransformer<
                     ? value.map((item) => this.transform(item, propertyMapping))
                     : this.transform(value, propertyMapping);
             } else if (propertyMapping.transformer) {
-                const { transform } = propertyMapping.transformer;
+                const transformer = propertyMapping.transformer;
 
-                value = Array.isArray(value) ? value.map((item) => transform(item)) : transform(value);
+                value = Array.isArray(value)
+                    ? value.map((item) => transformer.transform(item))
+                    : transformer.transform(value);
             }
 
             out[key] = value;
@@ -117,9 +119,11 @@ export default class EntityToObjectTransformer<
                     ? value.map((item) => this.reverseTransform(item, propertyMapping))
                     : this.reverseTransform(value, propertyMapping);
             } else if (propertyMapping.transformer) {
-                const { reverseTransform } = propertyMapping.transformer;
+                const transformer = propertyMapping.transformer;
 
-                value = Array.isArray(value) ? value.map((item) => reverseTransform(item)) : reverseTransform(value);
+                value = Array.isArray(value)
+                    ? value.map((item) => transformer.reverseTransform(item))
+                    : transformer.reverseTransform(value);
             }
 
             const success = Reflect.set(instance, propertyMappingKey, value);
