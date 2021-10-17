@@ -10,8 +10,8 @@ export type PropValueTransformer<FromType = any, ToType = any> = {
     reverseTransform(to: ToType): FromType;
 };
 
-export type ClassConstructor<EntityType = {}> = {
-    new (...args: any[]): EntityType;
+export type ClassConstructor = {
+    new (...args: any[]): {};
     [key: string]: any;
 };
 
