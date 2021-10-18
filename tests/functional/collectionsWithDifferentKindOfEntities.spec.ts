@@ -2,7 +2,6 @@ import Product from '../support/entity/Product';
 import Feature from '../support/entity/Feature';
 import Color from '../support/entity/Color';
 import EntityToObjectTransformer from '../../src';
-import { ObjectMapping } from '../../src/transformer/EntityToObjectTransformer';
 import Uuid from '../support/valueObject/Uuid';
 import UuidToStringTransformer from '../support/transformer/UuidToStringTransformer';
 import ProductAttributeToObjectTransformer from '../support/transformer/ProductAttributeToObjectTransformer';
@@ -13,7 +12,6 @@ describe('Collection with different kind of entities', () => {
     let firstColor: Color;
     let secondColor: Color;
     let transformer: EntityToObjectTransformer<Product, any>;
-    let productMapping: ObjectMapping;
     let productAsObject: Record<string, any>;
 
     beforeEach(() => {
@@ -28,7 +26,7 @@ describe('Collection with different kind of entities', () => {
         secondColor = new Color(new Uuid(), 'Yellow');
         product.addAttribute(secondColor);
 
-        productMapping = {
+        transformer = new EntityToObjectTransformer({
             type: 'object',
             constructor: Product,
             properties: {
@@ -46,11 +44,9 @@ describe('Collection with different kind of entities', () => {
                     transformer: new ProductAttributeToObjectTransformer(new UuidToStringTransformer()),
                 },
             },
-        };
+        });
 
-        transformer = new EntityToObjectTransformer();
-
-        productAsObject = productAsObject = transformer.transform(product, productMapping);
+        productAsObject = productAsObject = transformer.transform(product);
     });
 
     it('should be able to transform them to an object', () => {
@@ -75,7 +71,7 @@ describe('Collection with different kind of entities', () => {
     });
 
     it('should be able to transform them back to their original form', () => {
-        const backAsProduct = transformer.reverseTransform(productAsObject, productMapping);
+        const backAsProduct = transformer.reverseTransform(productAsObject);
 
         expect(backAsProduct.uuid).toBeInstanceOf(Uuid);
         expect(backAsProduct.uuid.equals(product.uuid)).toBe(true);

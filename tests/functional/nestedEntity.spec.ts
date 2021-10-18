@@ -84,8 +84,8 @@ describe('A nested entity', () => {
             'mapping',
             'transformer',
         ]);
-        blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>();
-        blogItemAsObject = blogItemTransformer.transform(blogItem, blogItemMapping);
+        blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>(blogItemMapping);
+        blogItemAsObject = blogItemTransformer.transform(blogItem);
     });
 
     it('should be able to transform it to an object', () => {
@@ -105,7 +105,7 @@ describe('A nested entity', () => {
 
     describe('an when transformed back', () => {
         it('should match the input', () => {
-            const outputBlogItem = blogItemTransformer.reverseTransform(blogItemAsObject, blogItemMapping);
+            const outputBlogItem = blogItemTransformer.reverseTransform(blogItemAsObject);
 
             expect(outputBlogItem).toBeInstanceOf(BlogItem);
             expect(outputBlogItem.uuid).toBeInstanceOf(Uuid);

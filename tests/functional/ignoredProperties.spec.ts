@@ -34,18 +34,17 @@ describe('EntityToObjectTransformer', () => {
         describe('With a single entity with no nesting', () => {
             describe('and it told to throw when not', () => {
                 it('should throw', () => {
-                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
-
-                    const execute = () =>
-                        transformer.transform(author, {
-                            type: 'object',
-                            constructor: Author,
-                            properties: {
-                                uuid: {
-                                    type: 'property',
-                                },
+                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>({
+                        type: 'object',
+                        constructor: Author,
+                        properties: {
+                            uuid: {
+                                type: 'property',
                             },
-                        });
+                        },
+                    });
+
+                    const execute = () => transformer.transform(author);
 
                     expect(execute).toThrow(PropertiesNotMappedError);
                 });
@@ -53,24 +52,23 @@ describe('EntityToObjectTransformer', () => {
 
             describe('and it is told to not throw', () => {
                 it('should not throw', () => {
-                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
-
-                    const execute = () =>
-                        transformer.transform(author, {
-                            type: 'object',
-                            constructor: Author,
-                            properties: {
-                                uuid: {
-                                    type: 'property',
-                                },
-                                _name: {
-                                    type: 'property',
-                                },
-                                createdAt: {
-                                    type: 'property',
-                                },
+                    const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>({
+                        type: 'object',
+                        constructor: Author,
+                        properties: {
+                            uuid: {
+                                type: 'property',
                             },
-                        });
+                            _name: {
+                                type: 'property',
+                            },
+                            createdAt: {
+                                type: 'property',
+                            },
+                        },
+                    });
+
+                    const execute = () => transformer.transform(author);
 
                     expect(execute).not.toThrow();
                 });
@@ -79,35 +77,34 @@ describe('EntityToObjectTransformer', () => {
 
         describe('With an valid entity with invalid nested entities in it ', () => {
             it('should throw', () => {
-                const transformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>();
-                const blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
-
-                const execute = () =>
-                    transformer.transform(blogItem, {
-                        type: 'object',
-                        constructor: BlogItem,
-                        properties: {
-                            uuid: {
-                                type: 'property',
-                            },
-                            _title: {
-                                type: 'property',
-                            },
-                            _description: {
-                                type: 'property',
-                            },
-                            author: {
-                                type: 'object',
-                                constructor: Author,
-                                properties: {
-                                    uuid: {
-                                        type: 'property',
-                                    },
-                                    // missing _name, createdAt
+                const transformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>({
+                    type: 'object',
+                    constructor: BlogItem,
+                    properties: {
+                        uuid: {
+                            type: 'property',
+                        },
+                        _title: {
+                            type: 'property',
+                        },
+                        _description: {
+                            type: 'property',
+                        },
+                        author: {
+                            type: 'object',
+                            constructor: Author,
+                            properties: {
+                                uuid: {
+                                    type: 'property',
                                 },
+                                // missing _name, createdAt
                             },
                         },
-                    });
+                    },
+                });
+                const blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
+
+                const execute = () => transformer.transform(blogItem);
 
                 expect(execute).toThrow(PropertiesNotMappedError);
             });
@@ -117,63 +114,23 @@ describe('EntityToObjectTransformer', () => {
     describe('When mapping an non existent property', () => {
         describe('when transforming', () => {
             it('should throw', () => {
-                const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
-
-                const execute = () =>
-                    transformer.transform(author, {
-                        type: 'object',
-                        constructor: Author,
-                        properties: {
-                            nonThere: {
-                                type: 'property',
-                            },
-                        },
-                    });
-
-                expect(execute).toThrow(PropertyNotFoundOnEntityError);
-            });
-        });
-
-        describe('When reverse transforming', () => {
-            it('should throw', () => {
-                const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
-
-                const correctMapping: ObjectMapping = {
+                const transformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>({
                     type: 'object',
                     constructor: Author,
                     properties: {
-                        uuid: {
-                            type: 'property',
-                            transformer: new UuidToStringTransformer(),
-                        },
-                        _name: {
-                            type: 'property',
-                        },
-                        createdAt: {
+                        nonThere: {
                             type: 'property',
                         },
                     },
-                };
+                });
 
-                const authorAsObject = transformer.transform(author, correctMapping);
+                const execute = () => transformer.transform(author);
 
-                const executeReverseTransform = () =>
-                    transformer.reverseTransform(authorAsObject, {
-                        ...correctMapping,
-                        properties: {
-                            ...correctMapping.properties,
-                            notThere: {
-                                type: 'property',
-                            },
-                        },
-                    });
-
-                expect(executeReverseTransform).toThrow(PropertyNotFoundInObjectError);
+                expect(execute).toThrow(PropertyNotFoundOnEntityError);
             });
         });
     });
 
     // @todo tests for utility functions
     // @todo output type should be on trnasform functions as that is where you supply the mapping that generates it
-    // @todo mapping to constructor?
 });

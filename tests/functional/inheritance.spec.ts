@@ -17,15 +17,10 @@ describe('When applying inheritance', () => {
     describe('When transforming the entity to an object', () => {
         let transformer: EntityToObjectTransformer<Editor, EditorAsObjectType>;
         let editor: Editor;
-        let mapping: ObjectMapping;
         let editorAsObject: AuthorAsObjectType & { alias: string };
 
         beforeEach(() => {
-            transformer = new EntityToObjectTransformer<Editor, EditorAsObjectType>();
-
-            editor = new Editor(new Uuid(), 'Eva Prong', 'evi');
-
-            mapping = {
+            transformer = new EntityToObjectTransformer<Editor, EditorAsObjectType>({
                 type: 'object',
                 constructor: Editor,
                 properties: {
@@ -44,9 +39,11 @@ describe('When applying inheritance', () => {
                         type: 'property',
                     },
                 },
-            };
+            });
 
-            editorAsObject = transformer.transform(editor, mapping);
+            editor = new Editor(new Uuid(), 'Eva Prong', 'evi');
+
+            editorAsObject = transformer.transform(editor);
         });
 
         it('works as expected', () => {
@@ -60,7 +57,7 @@ describe('When applying inheritance', () => {
 
         describe('and when transforming back', () => {
             it('becomes the same as the inputted entity', () => {
-                const backAsEditor = transformer.reverseTransform(editorAsObject, mapping);
+                const backAsEditor = transformer.reverseTransform(editorAsObject);
 
                 expect(backAsEditor.uuid).toBeInstanceOf(Uuid);
                 expect(backAsEditor.uuid.equals(editor.uuid)).toBe(true);

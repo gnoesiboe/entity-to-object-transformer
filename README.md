@@ -32,8 +32,6 @@ type BlogItemAsObject = {
 const author = new Author(new Uuid(), 'Peter Pan')
 const blogItem = new BlogItem(new Uuid(), 'Some title', 'Some description', author);
 
-const transformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObject>();
-
 const mapping: ObjectMapping = {
     type: 'object',
     constructor: BlogItem,
@@ -77,7 +75,9 @@ const mapping: ObjectMapping = {
     }
 }
 
-const blogItemAsObject = transformer.transform(blogItem, mapping);
+const transformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObject>(mapping);
+
+const blogItemAsObject = transformer.transform(blogItem);
 
 /*
 OUTPUT:
@@ -96,7 +96,7 @@ OUTPUT:
 
  */
 
-const blogItemAsModelAgain = transformer.reverseTransform(blogItemAsObject, mapping);
+const blogItemAsModelAgain = transformer.reverseTransform(blogItemAsObject);
 
 // OUTPUT: Your entity, re-hydrated again
 ```

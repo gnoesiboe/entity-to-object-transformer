@@ -35,19 +35,20 @@ export default class EntityToObjectTransformer<
     EntityType extends Record<string, any>,
     ObjectType = Record<string, any>,
 > {
-    private static forEachMappingProperty(
-        mapping: ObjectMapping,
+    constructor(private mapping: ObjectMapping) {}
+
+    private forEachMappingProperty(
         callback: (
             propertyMappingKey: Extract<keyof ObjectMapping['properties'], string>,
             propertyMapping: PropertyMapping | ObjectMapping,
         ) => void,
     ): void {
-        const propertyMappingKeys = Object.keys(mapping.properties) as Array<
+        const propertyMappingKeys = Object.keys(this.mapping.properties) as Array<
             Extract<keyof ObjectMapping['properties'], string>
         >;
 
         propertyMappingKeys.forEach((propertyMappingKey) => {
-            const propertyMapping = mapping.properties[propertyMappingKey];
+            const propertyMapping = this.mapping.properties[propertyMappingKey];
 
             if (!propertyMapping) {
                 throw new Error(
@@ -59,31 +60,33 @@ export default class EntityToObjectTransformer<
         });
     }
 
-    transform(entity: EntityType, mapping: ObjectMapping): ObjectType {
+    transform(entity: EntityType): ObjectType {
         const out: Record<string, any> = {};
 
         const allEntityProps: string[] = Object.keys(entity);
         const transformedEntityProps: string[] = [];
 
-        EntityToObjectTransformer.forEachMappingProperty(mapping, (propertyMappingKey, propertyMapping) => {
+        this.forEachMappingProperty((propertyMappingKey, propertyMapping) => {
             const key = propertyMapping.as || propertyMappingKey;
 
             let value = entity[propertyMappingKey];
 
             if (value === undefined) {
-                throw PropertyNotFoundOnEntityError.createForProperty(key, mapping.constructor);
+                throw PropertyNotFoundOnEntityError.createForProperty(key, this.mapping.constructor);
             }
 
             if (isObjectMapping(propertyMapping)) {
-                value = Array.isArray(value)
-                    ? value.map((item) => this.transform(item, propertyMapping))
-                    : this.transform(value, propertyMapping);
-            } else if (propertyMapping.transformer) {
-                const transformer = propertyMapping.transformer;
+                const childTransformer = new EntityToObjectTransformer(propertyMapping);
 
                 value = Array.isArray(value)
-                    ? value.map((item) => transformer.transform(item))
-                    : transformer.transform(value);
+                    ? value.map((item) => childTransformer.transform(item))
+                    : childTransformer.transform(value);
+            } else if (propertyMapping.transformer) {
+                const customTransformer = propertyMapping.transformer;
+
+                value = Array.isArray(value)
+                    ? value.map((item) => customTransformer.transform(item))
+                    : customTransformer.transform(value);
             }
 
             out[key] = value;
@@ -92,20 +95,20 @@ export default class EntityToObjectTransformer<
         });
 
         const forgottenProps = checkArrayDiff(allEntityProps, transformedEntityProps);
-        const ignoredProps = mapping.ignoredProperties || [];
+        const ignoredProps = this.mapping.ignoredProperties || [];
         const propsToThrowFor = checkArrayDiff(forgottenProps, ignoredProps);
 
         if (propsToThrowFor.length > 0) {
-            throw PropertiesNotMappedError.createForProperties(propsToThrowFor, mapping.constructor);
+            throw PropertiesNotMappedError.createForProperties(propsToThrowFor, this.mapping.constructor);
         }
 
         return out as ObjectType;
     }
 
-    reverseTransform(inputObject: Record<string, any>, mapping: ObjectMapping): EntityType {
-        const instance = new mapping.constructor() as EntityType;
+    reverseTransform(inputObject: Record<string, any>): EntityType {
+        const instance = new this.mapping.constructor() as EntityType;
 
-        EntityToObjectTransformer.forEachMappingProperty(mapping, (propertyMappingKey, propertyMapping) => {
+        this.forEachMappingProperty((propertyMappingKey, propertyMapping) => {
             const inputKey = propertyMapping.as || propertyMappingKey;
 
             let value = inputObject[inputKey];
@@ -115,9 +118,11 @@ export default class EntityToObjectTransformer<
             }
 
             if (isObjectMapping(propertyMapping)) {
+                const childTransformer = new EntityToObjectTransformer(propertyMapping);
+
                 value = Array.isArray(value)
-                    ? value.map((item) => this.reverseTransform(item, propertyMapping))
-                    : this.reverseTransform(value, propertyMapping);
+                    ? value.map((item) => childTransformer.reverseTransform(item))
+                    : childTransformer.reverseTransform(value);
             } else if (propertyMapping.transformer) {
                 const transformer = propertyMapping.transformer;
 
@@ -129,7 +134,7 @@ export default class EntityToObjectTransformer<
             const success = Reflect.set(instance, propertyMappingKey, value);
 
             if (!success) {
-                throw CouldNotAssignPropertyValueError.createForProperty(propertyMappingKey, mapping.constructor);
+                throw CouldNotAssignPropertyValueError.createForProperty(propertyMappingKey, this.mapping.constructor);
             }
         });
 

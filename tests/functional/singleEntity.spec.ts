@@ -38,8 +38,8 @@ describe('With a single entity', () => {
 
     beforeEach(() => {
         author = new Author(new Uuid(), 'Gijs Nieuwenhuis');
-        authorTransformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>();
-        authorAsObject = authorTransformer.transform(author, authorMapping);
+        authorTransformer = new EntityToObjectTransformer<Author, AuthorAsObjectType>(authorMapping);
+        authorAsObject = authorTransformer.transform(author);
     });
 
     it('should work be able to transform it to an object', () => {
@@ -52,7 +52,7 @@ describe('With a single entity', () => {
 
     describe('and when transformed back', () => {
         it('should match the input', () => {
-            const outputAuthor = authorTransformer.reverseTransform(authorAsObject, authorMapping);
+            const outputAuthor = authorTransformer.reverseTransform(authorAsObject);
 
             expect(outputAuthor.uuid).toBeInstanceOf(Uuid);
             expect(outputAuthor.uuid.equals(author.uuid)).toBe(true);

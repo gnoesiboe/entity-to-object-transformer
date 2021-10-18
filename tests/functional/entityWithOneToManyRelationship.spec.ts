@@ -111,7 +111,9 @@ describe('With an entity with a one to many relation', () => {
     let author: Author;
     let blogItemWithComments: BlogItem;
     let blogItemWithCommentsAsObject: BlogItemAsObjectWithCommentsType;
-    const blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectWithCommentsType>();
+    const blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectWithCommentsType>(
+        blogItemWithCommentsMapping,
+    );
 
     beforeEach(() => {
         author = new Author(new Uuid(), 'Gijs Nieuwenhuis');
@@ -123,7 +125,7 @@ describe('With an entity with a one to many relation', () => {
         blogItemWithComments.addComment(new Comment(new Uuid(), 'Doing great!'));
         blogItemWithComments.addComment(new Comment(new Uuid(), 'Well done!'));
 
-        blogItemWithCommentsAsObject = blogItemTransformer.transform(blogItemWithComments, blogItemWithCommentsMapping);
+        blogItemWithCommentsAsObject = blogItemTransformer.transform(blogItemWithComments);
     });
 
     it('should be able to transform it to an object', () => {
@@ -157,10 +159,7 @@ describe('With an entity with a one to many relation', () => {
 
     describe('an when transformed back', () => {
         it('should match the input', () => {
-            const outputBlogItem = blogItemTransformer.reverseTransform(
-                blogItemWithCommentsAsObject,
-                blogItemWithCommentsMapping,
-            );
+            const outputBlogItem = blogItemTransformer.reverseTransform(blogItemWithCommentsAsObject);
 
             expect(outputBlogItem).toBeInstanceOf(BlogItem);
             expect(outputBlogItem.uuid).toBeInstanceOf(Uuid);
