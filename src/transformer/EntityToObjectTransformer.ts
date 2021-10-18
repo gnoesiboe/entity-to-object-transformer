@@ -95,12 +95,7 @@ export default class EntityToObjectTransformer<
         });
 
         const forgottenProps = checkArrayDiff(allEntityProps, transformedEntityProps);
-        const ignoredProps = this.mapping.ignoredProperties || [];
-        const propsToThrowFor = checkArrayDiff(forgottenProps, ignoredProps);
-
-        if (propsToThrowFor.length > 0) {
-            throw PropertiesNotMappedError.createForProperties(propsToThrowFor, this.mapping.constructor);
-        }
+        this.throwIfNotAllPropertiesAreMapped(forgottenProps);
 
         return out as ObjectType;
     }
@@ -139,5 +134,15 @@ export default class EntityToObjectTransformer<
         });
 
         return instance;
+    }
+
+    private throwIfNotAllPropertiesAreMapped(forgottenProps: string[]) {
+        const ignoredProps = this.mapping.ignoredProperties || [];
+
+        const propsToThrowFor = checkArrayDiff(forgottenProps, ignoredProps);
+
+        if (propsToThrowFor.length > 0) {
+            throw PropertiesNotMappedError.createForProperties(propsToThrowFor, this.mapping.constructor);
+        }
     }
 }
