@@ -1,12 +1,9 @@
 import Uuid from '../support/valueObject/Uuid';
 import Author from '../support/entity/Author';
-import EntityToObjectTransformer, { ObjectMapping } from '../../src/transformer/EntityToObjectTransformer';
-import UuidToStringTransformer from '../support/transformer/UuidToStringTransformer';
+import EntityToObjectTransformer from '../../src/transformer/EntityToObjectTransformer';
 import BlogItem from '../support/entity/BlogItem';
-import DateToStringTransformer from '../support/transformer/DateToStringTransformer';
 import PropertiesNotMappedError from '../../src/error/PropertiesNotMappedError';
 import PropertyNotFoundOnEntityError from '../../src/error/PropertyNotFoundOnEntityError';
-import PropertyNotFoundInObjectError from '../../src/error/PropertyNotFoundInObjectError';
 
 type AuthorAsObjectType = {
     _id: string;
