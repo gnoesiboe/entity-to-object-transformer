@@ -69,11 +69,11 @@ export default class EntityToObjectTransformer<
         this.forEachMappingProperty((propertyMappingKey, propertyMapping) => {
             const key = propertyMapping.as || propertyMappingKey;
 
-            let value = entity[propertyMappingKey];
-
-            if (value === undefined) {
+            if (typeof entity[propertyMappingKey] === 'undefined') {
                 throw PropertyNotFoundOnEntityError.createForProperty(key, this.mapping.constructor);
             }
+
+            let value = entity[propertyMappingKey];
 
             if (isObjectMapping(propertyMapping)) {
                 const childTransformer = new EntityToObjectTransformer(propertyMapping);
