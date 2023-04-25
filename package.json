@@ -1,6 +1,6 @@
 {
   "name": "@gnoesiboe/entity-to-object-transformer",
-  "version": "2.0.1",
+  "version": "2.2.0",
   "description": "Transforms entities to native objects and back. Enables you to use domain entities in your application, but store them as plain objects, and re-hydrate them when they come back from the database.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
