@@ -84,7 +84,7 @@ export default class EntityToObjectTransformer<
         this.forEachMappingProperty((propertyMappingKey, propertyMapping) => {
             const key = propertyMapping.as || propertyMappingKey;
 
-            if (typeof entity[propertyMappingKey] === 'undefined') {
+            if (!entity.hasOwnProperty(propertyMappingKey)) {
                 throw PropertyNotFoundOnEntityError.createForProperty(key, this.mapping.constructor);
             }
 
