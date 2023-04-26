@@ -1,10 +1,9 @@
-import BlogItem from '../support/entity/BlogItem';
-import EntityToObjectTransformer from '../../src';
-import Uuid from '../support/valueObject/Uuid';
-import { ObjectMapping } from '../../src/transformer/EntityToObjectTransformer';
+import EntityToObjectTransformer, { ObjectMapping } from '../../src/transformer/EntityToObjectTransformer';
 import Author from '../support/entity/Author';
 import UuidToStringTransformer from '../support/transformer/UuidToStringTransformer';
 import DateToStringTransformer from '../support/transformer/DateToStringTransformer';
+import BlogItem from '../support/entity/BlogItem';
+import Uuid from '../support/valueObject/Uuid';
 
 type AuthorAsObjectType = {
     _id: string;
@@ -75,7 +74,7 @@ const blogItemMapping: ObjectMapping = {
     ignoredProperties: ['comments'],
 };
 
-describe('A nested entity', () => {
+describe("don't expose null or undefined properties", () => {
     let author: Author;
     let blogItem: BlogItem;
     let blogItemTransformer: EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>;
@@ -88,11 +87,14 @@ describe('A nested entity', () => {
             'mapping',
             'transformer',
         ]);
-        blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>(blogItemMapping);
+
+        blogItemTransformer = new EntityToObjectTransformer<BlogItem, BlogItemAsObjectType>(blogItemMapping, {
+            exposeUndefinedOrNullValueProperties: false,
+        });
         blogItemAsObject = blogItemTransformer.transform(blogItem);
     });
 
-    it('should be able to transform it to an object', () => {
+    it('exposes only properties that are not null or undefined', () => {
         expect(blogItemAsObject).toEqual({
             _id: blogItem.uuid.toString(),
             title: blogItem.title,
@@ -101,26 +103,9 @@ describe('A nested entity', () => {
             author: {
                 _id: author.uuid.toString(),
                 name: author.name,
-                initials: author.initials,
                 createdAt: author.createdAt.toISOString(),
             },
             tags: ['entity', 'mapping', 'transformer'],
-        });
-    });
-
-    describe('an when transformed back', () => {
-        it('should match the input', () => {
-            const outputBlogItem = blogItemTransformer.reverseTransform(blogItemAsObject);
-
-            expect(outputBlogItem).toBeInstanceOf(BlogItem);
-            expect(outputBlogItem.uuid).toBeInstanceOf(Uuid);
-            expect(outputBlogItem.uuid.equals(blogItem.uuid)).toBe(true);
-            expect(outputBlogItem.title).toEqual(blogItem.title);
-            expect(outputBlogItem.description).toEqual(blogItem.description);
-            expect(outputBlogItem.createdAt).toEqual(blogItem.createdAt);
-            expect(outputBlogItem.author.uuid).toBeInstanceOf(Uuid);
-            expect(outputBlogItem.author.uuid.equals(author.uuid)).toBe(true);
-            expect(outputBlogItem.author.name).toEqual(author.name);
         });
     });
 });

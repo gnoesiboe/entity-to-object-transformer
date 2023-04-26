@@ -59,6 +59,9 @@ describe('EntityToObjectTransformer', () => {
                             _name: {
                                 type: 'property',
                             },
+                            _initials: {
+                                type: 'property',
+                            },
                             createdAt: {
                                 type: 'property',
                             },

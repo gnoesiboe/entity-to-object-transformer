@@ -32,6 +32,10 @@ describe('When applying inheritance', () => {
                         type: 'property',
                         as: 'name',
                     },
+                    _initials: {
+                        type: 'property',
+                        as: 'initials',
+                    },
                     createdAt: {
                         type: 'property',
                     },
@@ -50,6 +54,7 @@ describe('When applying inheritance', () => {
             expect(editorAsObject).toEqual({
                 uuid: editor.uuid.toString(),
                 name: editor.name,
+                initials: editor.initials,
                 createdAt: editor.createdAt,
                 alias: editor.alias,
             });

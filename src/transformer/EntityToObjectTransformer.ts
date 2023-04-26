@@ -4,6 +4,7 @@ import PropertyNotFoundOnEntityError from '../error/PropertyNotFoundOnEntityErro
 import PropertyNotFoundInObjectError from '../error/PropertyNotFoundInObjectError';
 import PropertiesNotMappedError from '../error/PropertiesNotMappedError';
 import CouldNotAssignPropertyValueError from '../error/CouldNotAssignPropertyValueError';
+import { deleteUndefinedOrNullValuePropertiesFromObject } from '../utility/objectUtilities';
 
 export type PropValueTransformer<FromType = any, ToType = any> = {
     transform(input: FromType): ToType;
@@ -31,11 +32,25 @@ export type ObjectMapping = {
     ignoredProperties?: string[];
 };
 
+type Settings = {
+    exposeUndefinedOrNullValueProperties: boolean;
+};
+
+const defaultSettings: Settings = {
+    exposeUndefinedOrNullValueProperties: true,
+};
 export default class EntityToObjectTransformer<
     EntityType extends Record<string, any>,
-    ObjectType = Record<string, any>,
+    ObjectType extends Record<string, any>,
 > {
-    constructor(private mapping: ObjectMapping) {}
+    private readonly settings: Settings;
+
+    constructor(private mapping: ObjectMapping, settings: Partial<Settings> = {}) {
+        this.settings = {
+            ...defaultSettings,
+            ...settings,
+        };
+    }
 
     private forEachMappingProperty(
         callback: (
@@ -96,6 +111,10 @@ export default class EntityToObjectTransformer<
 
         const forgottenProps = checkArrayDiff(allEntityProps, transformedEntityProps);
         this.throwIfNotAllPropertiesAreMapped(forgottenProps);
+
+        if (!this.settings.exposeUndefinedOrNullValueProperties) {
+            deleteUndefinedOrNullValuePropertiesFromObject(out);
+        }
 
         return out as ObjectType;
     }

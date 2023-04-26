@@ -44,6 +44,10 @@ const authorMapping: ObjectMapping = {
             as: 'name',
             type: 'property',
         },
+        _initials: {
+            as: 'initials',
+            type: 'property',
+        },
         createdAt: {
             type: 'property',
             transformer: new DateToStringTransformer(),
@@ -139,6 +143,7 @@ describe('With an entity with a one to many relation', () => {
             author: {
                 _id: author.uuid.toString(),
                 name: author.name,
+                initials: author.initials,
                 createdAt: author.createdAt.toISOString(),
             },
             comments: [

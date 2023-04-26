@@ -24,6 +24,10 @@ const authorMapping: ObjectMapping = {
             as: 'name',
             type: 'property',
         },
+        _initials: {
+            as: 'initials',
+            type: 'property',
+        },
         createdAt: {
             type: 'property',
             transformer: new DateToStringTransformer(),
@@ -46,6 +50,7 @@ describe('With a single entity', () => {
         expect(authorAsObject).toEqual({
             _id: author.uuid.toString(),
             name: author.name,
+            initials: null,
             createdAt: author.createdAt.toISOString(),
         });
     });
