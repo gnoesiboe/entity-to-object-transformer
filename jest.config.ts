@@ -83,7 +83,7 @@ export default {
     // Automatically restore mock state between every test
     // restoreMocks: false,
     // The root directory that Jest should scan for tests and modules within
-    rootDir: './tests',
+    rootDir: './',
     // A list of paths to directories that Jest should use to search for files in
     // roots: [
     //   "<rootDir>"
@@ -105,10 +105,7 @@ export default {
     // Adds a location field to test results
     // testLocationInResults: false,
     // The glob patterns Jest uses to detect test files
-    // testMatch: [
-    //   "**/__tests__/**/*.[jt]s?(x)",
-    //   "**/?(*.)+(spec|test).[tj]s?(x)"
-    // ],
+    testMatch: ['**/*.spec.ts'],
     // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
     // testPathIgnorePatterns: [
     //   "/node_modules/"
